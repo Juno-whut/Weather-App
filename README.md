@@ -13,7 +13,7 @@ Clone repo, install requirements, fill out fields that are specific to use
 2. Download or Clone the repo
 3. Run flutter pub get in your terminal to download all of the flutter packages
 4. Go [here](https://openweathermap.org/api) to make a free openweathermap account to generate your free api key
-5. Open the consts.dart file and replace the text YOURAPIKEYHERE with your api key
+5. Next create folder called secrets then inside of the secrets folder create the file api_key.dart. Inside this file add in your api key like this: ``` const OPENWEATHERAPIKEY = "YOURAPIKEYHERE" ```
 6. Next use the shortcut Ctrl+Shift+P in VSCode, then type Flutter: SelectDevice. And select your preferred debuging device, this can be a physical device like a phone or a tabelt or an emulator you have downloaded.
 7. Once you have your preferred device selected you can navigate to the main.dart file located in the lib folder and click the run and debug button or you can run this command in your terminal ``` flutter run ``` and select a connected device using the num keys to run the app.
 
