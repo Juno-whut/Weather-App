@@ -19,8 +19,8 @@ Clone repo, install requirements, and fill out fields that are specific to you
 
 ## Demo 
 
-![Screenshot](https://github/com/Juno-whut/Weather-App)
-gifs from live project
+![](https://github.com/Juno-whut/Weather-App/blob/main/ReadMeAssets/Screenshot_20250430-155832.png)
+[Full App Demo Video](https://youtu.be/Ppp-IdSLEco)
 youtube link to short demo video on my youtube channel
 
 ## Contributing
