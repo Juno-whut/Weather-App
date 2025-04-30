@@ -53,6 +53,7 @@ ios/
 linux/
 macos/
 web/
+windows/
 .idea/
 .dart_tool/
 lib/secrets/
