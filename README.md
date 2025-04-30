@@ -20,7 +20,7 @@ Clone repo, install requirements, and fill out fields that are specific to you
 ## Demo 
 
 <img src="https://github.com/Juno-whut/Weather-App/blob/main/ReadMeAssets/Screenshot_20250430-155823.png" alt="Screenshot from App" width="300"/>
-<img src="![your-image-url.png](https://github.com/Juno-whut/Weather-App/blob/main/ReadMeAssets/Screenshot_20250430-155832.png)" alt="Screenshot from App" width="300"/>
+<img src="https://github.com/Juno-whut/Weather-App/blob/main/ReadMeAssets/Screenshot_20250430-155832.png" alt="Screenshot from App" width="300"/>
 
 Heres a link to the full demo video on my youtube channel: [Full App Demo Video](https://youtu.be/Ppp-IdSLEco)
 
