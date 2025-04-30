@@ -1,5 +1,3 @@
-// add in more weather stats like humidity, wind speed, highs and lows
-
 class Weather {
   final String cityName;
   final double temperature;
@@ -31,4 +29,3 @@ class Weather {
     );
   }
 }
-
