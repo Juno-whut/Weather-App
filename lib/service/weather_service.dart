@@ -1,12 +1,17 @@
 import 'dart:convert';
-
-import '../models/weather_model.dart';
+import 'package:weather_app/models/weather_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
+
 class WeatherService {
+  // ignore: constant_identifier_names
   static const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
+  // ignore: constant_identifier_names
+  static const ONECALL_URL = 'https://api.openweathermap.org/data/3.0/onecall';
+  // ignore: constant_identifier_names
+  static const GEO_URL = 'https://api.openweathermap.org/geo/1.0/direct';
   final String apiKey;
 
   WeatherService(this.apiKey);
@@ -17,26 +22,28 @@ class WeatherService {
     if (response.statusCode == 200) {
       return Weather.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to load weather');
+      return Weather(cityName: 'Failed to load', temperature: 0, high: 0, low: 0, mainCondition: 'Failed to load', humidity: 0, windSpeed: 0);
     }
   }
 
   Future<String> getCurrentCity() async {
+    // fetch the current location
+    Position position = await Geolocator.getCurrentPosition(); 
+    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+    
+    // extract city name from the first placement mark
+    if (placemarks.isNotEmpty) {
+      Placemark place = placemarks.first;
+      return place.locality ?? '';
+    } else {
+      return 'Failed to get city';
+    }
+  }
+}
 
-    // get permission from user
-    LocationPermission permission = await Geolocator.checkPermission();
+Future<void> getUserPermission() async {
+  LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     } 
-
-    // fetch the current location
-    await getCurrentCity(); 
-    Position position = await Geolocator.getCurrentPosition(); 
-    List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-
-    // extract city name from the first placement mark
-    String? city = placemarks[0].locality;
-
-    return city ?? '';
-  }
 }
