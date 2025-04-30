@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weather_app/models/weather_model.dart';
 import 'package:weather_app/service/weather_service.dart';
+import 'package:weather_app/styles.dart';
+import 'package:weather_app/secrets/api_key.dart';
+import 'package:weather_app/widgets/extra_info.dart';
+
 
 
 class WeatherPage extends StatefulWidget {
@@ -14,26 +18,55 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
 
   // aip key
-  final _weatherService = WeatherService('e309344b3dfcf6c3e5962125d69ce5f5');
-  Weather? _weather;
-  // fetch weather
-  _fetchWeather() async {
-    // get current city
-    String cityName = await _weatherService.getCurrentCity();
+  final _weatherService = WeatherService(OPENWEATHERAPIKEY);
 
+  String cityName = 'Loading City. . .';
+  Weather? _weather;
+  TextEditingController searchBarController = TextEditingController();
+  FocusNode searchFocusNode = FocusNode();
+
+  // fetch weather
+  Future<void>_fetchWeather() async {
+    // get current city
+    try {
+      String city = await _weatherService.getCurrentCity();
+      setState((){
+        cityName = city;
+      });
+      }
+    catch (e) {
+      throw Exception(e);
+    }
+  
     // get weather for current city
+    try {
+      final weather = await _weatherService.getWeather(cityName);
+      setState(() {
+        _weather = weather;
+        
+      });
+    }
+    // any errors
+    catch (e) {
+      throw Exception(e);
+    }
+  }
+
+
+  // get weather from search
+  Future<void> getWeatherFromSearch(String cityName) async {
     try {
       final weather = await _weatherService.getWeather(cityName);
       setState(() {
         _weather = weather;
       });
     }
-
     // any errors
     catch (e) {
-      print(e);
-}
+      throw Exception(e);
+    }
   }
+
 
   // weather animations
     String getWeatherAnimation(String? mainCondition) {
@@ -67,7 +100,7 @@ class _WeatherPageState extends State<WeatherPage> {
         case 'light intensity shower rain':
         case 'heavy intensity shower rain':
         case 'ragged shower rain':
-          return 'assets/sunny_rain.json';
+          return 'assets/rain.json';
         case 'thunderstorm':
         case 'thunderstorm with light rain':
         case 'thunderstorm with rain':
@@ -78,7 +111,7 @@ class _WeatherPageState extends State<WeatherPage> {
         case 'thunderstorm with light drizzle':
         case 'thunderstorm with drizzle':
         case 'thunderstorm with heavy drizzle': 
-          return 'assets/thunder.josn';
+          return 'assets/thunder.json';
         case 'light snow':
         case 'snow':
         case 'heavy snow':
@@ -104,119 +137,88 @@ class _WeatherPageState extends State<WeatherPage> {
     }
 
 
+  void onSearchSubmitted(String value) {
+    if (value.isEmpty) return;
+    setState(() {
+      cityName = value;
+    });
+    searchBarController.clear();
+    getWeatherFromSearch(cityName);
+  }
+
+
+  void getLocationAndWeather() async {
+    await getUserPermission();
+    _fetchWeather();
+  }
+
   // init state
   @override
   void initState() {
     super.initState();
-
-    // fetch weather
-    _fetchWeather();
+    // get user permission and Weather
+    getLocationAndWeather();
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children:[
-          // city name
-          Text(_weather?.cityName ?? 'loading city..',
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 40,
-            fontWeight: FontWeight.w600,
-            )
+      appBar: AppBar(
+        backgroundColor: Colors.lightBlue[700],
+        title: TextField(
+          controller: searchBarController,
+          cursorColor: Colors.white,
+          focusNode: searchFocusNode,
+          style: titleStyle,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: cityName,
+            hintStyle: titleStyle,
+            suffixIcon: const Icon(Icons.search, color: Colors.white, size: 40, weight: 40,),
           ),
-          
-
-          // animation
-          Lottie.asset(getWeatherAnimation(_weather?.mainCondition)),
-
-          // temperature
-          Text('${_weather?.temperature.round()}F',
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 40,
-            fontWeight: FontWeight.w500,
-          )
+          autocorrect: true,
+          onSubmitted: onSearchSubmitted,
         ),
-          
+      ),
 
-          // main description
-          Text(_weather?.mainCondition ?? "",
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.w400,
-            )
-          ),
+      body: RefreshIndicator(
+        onRefresh: () => _fetchWeather(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Container(
+            padding: const EdgeInsets.all(10.0),
+            margin: const EdgeInsets.all(10.0),
+            alignment: Alignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children:[
+              // animation
+              Lottie.asset(getWeatherAnimation(_weather?.mainCondition)),
+            
+              // temperature
+              Text('${_weather?.temperature.round()}°F',
+              style: titleStyle
+              ),
+              
+              // main description
+              Text(_weather?.mainCondition ?? "",
+              style: mainConditionStyle
+              ),
+            
+              // extra space
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.05,
+              ),
 
-          // extra space
-          SizedBox(
-            height: MediaQuery.sizeOf(context).height * 0.05,
+              // other weather stats
+              ExtraInfo(weather: _weather),  
+              ],
+            ),
           ),
-          // other weather stats
-          _extraInfo(),
-          ],
-        ),  
+        ),
       ), 
-    );
-  }
-
-  Widget _extraInfo() {
-    return Container(
-      width: MediaQuery.sizeOf(context).width * 0.8,
-      height: MediaQuery.sizeOf(context).height * 0.15,
-      decoration: BoxDecoration
-      (color: Colors.lightBlueAccent, 
-      borderRadius: BorderRadius.circular(15),
-      ),
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text("High: ${_weather?.high.round()}°F",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                ),
-              ),
-              Text("Low: ${_weather?.low.round()}°F",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize:15,
-              ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text("Wind: ${(_weather?.windSpeed != null ? _weather!.windSpeed * 2.23694 : 0).toStringAsFixed(0)} mph",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                ),
-              ),
-              Text("Humidity: ${_weather?.humidity.round()}%",
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize:15,
-              ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
