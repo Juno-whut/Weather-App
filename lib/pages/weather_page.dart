@@ -7,7 +7,6 @@ import 'package:weather_app/secrets/api_key.dart';
 import 'package:weather_app/widgets/extra_info.dart';
 
 
-
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key});
 
@@ -43,7 +42,6 @@ class _WeatherPageState extends State<WeatherPage> {
       final weather = await _weatherService.getWeather(cityName);
       setState(() {
         _weather = weather;
-        
       });
     }
     // any errors

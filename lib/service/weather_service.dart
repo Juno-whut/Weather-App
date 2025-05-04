@@ -4,27 +4,22 @@ import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
-
 class WeatherService {
   // ignore: constant_identifier_names
   static const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
-  // ignore: constant_identifier_names
-  static const ONECALL_URL = 'https://api.openweathermap.org/data/3.0/onecall';
-  // ignore: constant_identifier_names
-  static const GEO_URL = 'https://api.openweathermap.org/geo/1.0/direct';
   final String apiKey;
 
   WeatherService(this.apiKey);
 
   Future<Weather> getWeather(String cityName) async {
     final response = await http.get(Uri.parse('$BASE_URL?q=$cityName&appid=$apiKey&units=imperial')); // try changing to imperial later
-
     if (response.statusCode == 200) {
       return Weather.fromJson(jsonDecode(response.body));
     } else {
       return Weather(cityName: 'Failed to load', temperature: 0, high: 0, low: 0, mainCondition: 'Failed to load', humidity: 0, windSpeed: 0);
     }
   }
+
 
   Future<String> getCurrentCity() async {
     // fetch the current location
